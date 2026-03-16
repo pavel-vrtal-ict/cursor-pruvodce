@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cursor od základů — Interaktivní průvodce</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg: #f5f4ef;
+  --surface: #ffffff;
+  --surface-2: #f0efe9;
+  --surface-3: #e8e7e1;
+  --border: #dddbd4;
+  --border-hover: #c5c3bc;
+  --text: #1a1915;
+  --text-dim: #5c5a52;
+  --text-muted: #918f86;
+  --accent: #6b5ce7;
+  --accent-glow: #6b5ce720;
+  --accent-2: #0d9373;
+  --accent-3: #d9455f;
+  --accent-4: #cc7a2e;
+  --green: #15803d;
+  --red: #dc2626;
+  --yellow: #a16207;
+  --blue: #2563eb;
+  --sidebar-w: 280px;
+  --header-h: 64px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* ====== HEADER ====== */
+.header {
+  position: fixed; top: 0; left: 0; right: 0;
+  height: var(--header-h);
+  background: rgba(245,244,239,0.88);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  z-index: 1000;
+  display: flex; align-items: center;
+  padding: 0 24px;
+  gap: 16px;
+}
+
+.header-logo {
+  display: flex; align-items: center; gap: 10px;
+  font-weight: 700; font-size: 18px;
+  white-space: nowrap; color: var(--text);
+}
+
+.header-logo .icon {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+
+.header-search {
+  flex: 1; max-width: 480px; margin: 0 auto;
+  position: relative;
+}
+
+.header-search input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 16px 8px 40px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.header-search input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.header-search input::placeholder { color: var(--text-muted); }
+
+.header-search .search-icon {
+  position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+  color: var(--text-muted); font-size: 16px; pointer-events: none;
+}
+
+.header-search .search-shortcut {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: 5px; padding: 2px 6px; font-size: 11px;
+  color: var(--text-muted); font-family: 'JetBrains Mono', monospace;
+  pointer-events: none;
+}
+
+.menu-toggle {
+  display: none;
+  background: none; border: none; color: var(--text); font-size: 24px;
+  cursor: pointer; padding: 4px;
+}
+
+.header-actions { display: flex; gap: 8px; align-items: center; }
+
+.theme-toggle {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; padding: 6px 10px; cursor: pointer;
+  color: var(--text-dim); font-size: 16px;
+  transition: all 0.2s;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--text); }
+
+.progress-bar {
+  position: absolute; bottom: 0; left: 0; height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  transition: width 0.3s;
+  border-radius: 1px;
+}
+
+/* ====== SIDEBAR ====== */
+.sidebar {
+  position: fixed; top: var(--header-h); left: 0;
+  width: var(--sidebar-w);
+  height: calc(100vh - var(--header-h));
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  z-index: 900;
+  padding: 16px 0;
+  transition: transform 0.3s;
+}
+
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.sidebar-section { padding: 0 16px; margin-bottom: 8px; }
+
+.sidebar-label {
+  font-size: 10px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 1.5px; color: var(--text-muted);
+  padding: 12px 0 6px;
+}
+
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 13.5px;
+  cursor: pointer;
+  transition: all 0.15s;
+  margin: 1px 0;
+}
+
+.nav-item:hover { background: var(--surface-2); color: var(--text); }
+.nav-item.active { background: #ede9fe; color: var(--accent); font-weight: 500; }
+.nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
+.nav-item .nav-badge {
+  margin-left: auto; background: #ede9fe; color: var(--accent);
+  font-size: 11px; padding: 1px 7px; border-radius: 10px; font-weight: 600;
+}
+
+/* ====== MAIN ====== */
+.main {
+  margin-left: var(--sidebar-w);
+  margin-top: var(--header-h);
+  min-height: calc(100vh - var(--header-h));
+}
+
+.content {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 40px 32px 80px;
+}
+
+/* ====== HERO ====== */
+.hero {
+  position: relative;
+  padding: 60px 40px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #f0ecff, #e6f5f0, #fef9ec);
+  border: 1px solid var(--border);
+  margin-bottom: 48px;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute; top: -50%; right: -20%; width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(107,92,231,0.1), transparent 70%);
+  pointer-events: none;
+}
+
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #ede9fe; border: 1px solid #d4ccfc;
+  border-radius: 20px; padding: 4px 14px;
+  font-size: 12px; color: var(--accent); font-weight: 500;
+  margin-bottom: 20px;
+}
+
+.hero h1 {
+  font-size: 36px; font-weight: 700; line-height: 1.2;
+  margin-bottom: 16px;
+  color: var(--text);
+}
+
+.hero p { color: var(--text-dim); font-size: 16px; max-width: 560px; line-height: 1.7; position: relative; }
+
+.hero-meta {
+  display: flex; flex-wrap: wrap; gap: 20px;
+  margin-top: 24px; position: relative;
+}
+
+.hero-meta-item {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 13px; color: var(--text-muted);
+}
+
+.hero-meta-item span { color: var(--text-dim); }
+
+/* ====== SECTIONS ====== */
+.section {
+  scroll-margin-top: calc(var(--header-h) + 24px);
+  margin-bottom: 48px;
+}
+
+.section-header {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.section-icon {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+
+.section-header h2 { font-size: 22px; font-weight: 600; }
+
+/* ====== CARDS ====== */
+.card-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px; margin-bottom: 24px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  transition: all 0.2s;
+  cursor: default;
+}
+
+.card:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+}
+
+.card-icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; margin-bottom: 12px;
+}
+
+.card h3 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+.card p { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+
+/* ====== INFO BLOCKS ====== */
+.info-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+
+.info-block h3 {
+  font-size: 16px; font-weight: 600; margin-bottom: 8px;
+  display: flex; align-items: center; gap: 8px;
+}
+
+.info-block p, .info-block li { font-size: 14px; color: var(--text-dim); line-height: 1.7; }
+.info-block ul { padding-left: 18px; }
+.info-block li { margin-bottom: 4px; }
+.info-block li strong { color: var(--text); }
+
+/* ====== CALLOUT ====== */
+.callout {
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  display: flex; gap: 12px;
+  line-height: 1.6;
+}
+
+.callout-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+
+.callout.tip {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: var(--green);
+}
+
+.callout.warning {
+  background: #fefce8;
+  border: 1px solid #fde68a;
+  color: var(--yellow);
+}
+
+.callout.info {
+  background: #f0ecff;
+  border: 1px solid #d4ccfc;
+  color: var(--accent);
+}
+
+/* ====== CODE ====== */
+code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  padding: 2px 7px;
+  border-radius: 5px;
+  color: var(--accent-2);
+}
+
+/* ====== STEPS ====== */
+.steps { counter-reset: step; }
+
+.step {
+  display: flex; gap: 16px;
+  margin-bottom: 16px;
+  padding: 16px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: border-color 0.2s;
+}
+
+.step:hover { border-color: var(--border-hover); }
+
+.step-num {
+  counter-increment: step;
+  width: 32px; height: 32px; flex-shrink: 0;
+  background: #ede9fe;
+  color: var(--accent);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 14px;
+}
+
+.step-num::after { content: counter(step); }
+
+.step-content h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.step-content p { font-size: 13px; color: var(--text-dim); }
+
+/* ====== TABS ====== */
+.tabs {
+  display: flex; gap: 4px;
+  margin-bottom: 16px;
+  background: var(--surface-2);
+  border-radius: 10px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  padding: 8px 16px;
+  border: none; background: none;
+  color: var(--text-muted); font-family: inherit;
+  font-size: 13px; font-weight: 500;
+  border-radius: 7px; cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab-btn:hover { color: var(--text-dim); }
+.tab-btn.active { background: var(--surface); color: var(--accent); box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ====== LINKS ====== */
+.links-grid { display: grid; gap: 8px; }
+
+.link-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  text-decoration: none;
+  color: var(--text);
+  transition: all 0.2s;
+  font-size: 14px;
+}
+
+.link-row:hover {
+  border-color: var(--accent);
+  background: #faf9fe;
+  transform: translateX(4px);
+}
+
+.link-row .link-name { font-weight: 500; min-width: 160px; }
+.link-row .link-cat {
+  font-size: 11px; color: var(--text-muted);
+  background: var(--surface-2); padding: 2px 8px; border-radius: 4px;
+}
+.link-row .link-desc { color: var(--text-dim); font-size: 13px; flex: 1; }
+.link-row .link-arrow { color: var(--text-muted); margin-left: auto; }
+
+/* ====== GLOSSARY ====== */
+.glossary-item {
+  padding: 14px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 8px;
+}
+
+.glossary-item dt {
+  font-weight: 600; font-size: 15px;
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 4px;
+}
+
+.glossary-item dd { font-size: 13.5px; color: var(--text-dim); line-height: 1.6; }
+
+/* ====== SEARCH RESULTS ====== */
+.search-overlay {
+  display: none;
+  position: fixed; top: var(--header-h); left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.15);
+  backdrop-filter: blur(4px);
+  z-index: 950;
+}
+
+.search-results {
+  position: fixed;
+  top: calc(var(--header-h) + 8px);
+  left: 50%; transform: translateX(-50%);
+  width: 90%; max-width: 560px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 960;
+  display: none;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+}
+
+.search-result-item {
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.search-result-item:hover { background: var(--surface-2); }
+.search-result-item:last-child { border-bottom: none; }
+.search-result-item .sr-title { font-weight: 600; font-size: 14px; margin-bottom: 2px; }
+.search-result-item .sr-section { font-size: 12px; color: var(--text-muted); }
+.search-result-item .sr-match { font-size: 13px; color: var(--text-dim); margin-top: 4px; }
+.search-result-item .sr-match mark {
+  background: #ede9fe; color: var(--accent); border-radius: 2px; padding: 0 2px;
+}
+
+.search-empty { padding: 24px; text-align: center; color: var(--text-muted); font-size: 14px; }
+
+/* ====== BACK TO TOP ====== */
+.back-top {
+  position: fixed; bottom: 24px; right: 24px;
+  width: 42px; height: 42px;
+  background: var(--accent);
+  border: none; border-radius: 12px;
+  color: #fff; font-size: 18px;
+  cursor: pointer;
+  opacity: 0; pointer-events: none;
+  transition: all 0.3s;
+  z-index: 800;
+  box-shadow: 0 4px 16px rgba(107,92,231,0.25);
+}
+
+.back-top.visible { opacity: 1; pointer-events: auto; }
+.back-top:hover { transform: translateY(-2px); }
+
+/* ====== RESPONSIVE ====== */
+@media (max-width: 900px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); box-shadow: 4px 0 24px rgba(0,0,0,0.1); }
+  .main { margin-left: 0; }
+  .menu-toggle { display: block; }
+  .content { padding: 24px 16px 60px; }
+  .hero { padding: 36px 24px; }
+  .hero h1 { font-size: 26px; }
+  .card-grid { grid-template-columns: 1fr; }
+  .link-row { flex-wrap: wrap; }
+  .link-row .link-desc { min-width: 100%; }
+}
+
+/* ====== PRINT ====== */
+@media print {
+  .header, .sidebar, .back-top, .header-search { display: none !important; }
+  .main { margin-left: 0 !important; }
+  body { background: #fff; }
+  .card, .info-block, .step, .callout { break-inside: avoid; }
+}
+
+/* ====== ANIMATIONS ====== */
+.fade-in {
+  opacity: 0; transform: translateY(12px);
+  transition: opacity 0.4s, transform 0.4s;
+}
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Menu">☰</button>
+  <div class="header-logo">
+    <div class="icon">⚡</div>
+    <span>Cursor Guide</span>
+  </div>
+  <div class="header-search">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="Hledat v průvodci…" autocomplete="off">
+    <span class="search-shortcut">Ctrl+K</span>
+  </div>
+  <div class="header-actions">
+    <button class="theme-toggle" onclick="printPage()" title="Tisk">🖨️</button>
+  </div>
+  <div class="progress-bar" id="progressBar"></div>
+</header>
+
+<!-- SEARCH -->
+<div class="search-overlay" id="searchOverlay" onclick="closeSearch()"></div>
+<div class="search-results" id="searchResults"></div>
+
+<!-- SIDEBAR -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-section">
+    <div class="sidebar-label">Přehled</div>
+    <a class="nav-item active" data-section="uvod" onclick="goTo('uvod')">
+      <span class="nav-icon">🏠</span> Úvod
+    </a>
+    <a class="nav-item" data-section="summary" onclick="goTo('summary')">
+      <span class="nav-icon">📋</span> Executive Summary
+    </a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-label">Začínáme</div>
+    <a class="nav-item" data-section="rozhrani" onclick="goTo('rozhrani')">
+      <span class="nav-icon">🖥️</span> Rozhraní a nastavení
+    </a>
+    <a class="nav-item" data-section="workspace" onclick="goTo('workspace')">
+      <span class="nav-icon">📂</span> Workspace
+    </a>
+    <a class="nav-item" data-section="mody" onclick="goTo('mody')">
+      <span class="nav-icon">🎛️</span> Módy a modely
+      <span class="nav-badge">4</span>
+    </a>
+    <a class="nav-item" data-section="kontext" onclick="goTo('kontext')">
+      <span class="nav-icon">🎯</span> Kontext
+    </a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-label">Pokročilé</div>
+    <a class="nav-item" data-section="rules" onclick="goTo('rules')">
+      <span class="nav-icon">📐</span> Rules, Skills, Commands
+    </a>
+    <a class="nav-item" data-section="mcp" onclick="goTo('mcp')">
+      <span class="nav-icon">🔌</span> MCP servery
+    </a>
+    <a class="nav-item" data-section="bezpecnost" onclick="goTo('bezpecnost')">
+      <span class="nav-icon">🛡️</span> Oprávnění a sandbox
+    </a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-label">Praxe</div>
+    <a class="nav-item" data-section="scenare" onclick="goTo('scenare')">
+      <span class="nav-icon">🚀</span> Scénáře použití
+      <span class="nav-badge">5</span>
+    </a>
+    <a class="nav-item" data-section="kroky" onclick="goTo('kroky')">
+      <span class="nav-icon">✅</span> Akční kroky
+    </a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-label">Reference</div>
+    <a class="nav-item" data-section="slovnicek" onclick="goTo('slovnicek')">
+      <span class="nav-icon">📖</span> Slovníček
+    </a>
+    <a class="nav-item" data-section="odkazy" onclick="goTo('odkazy')">
+      <span class="nav-icon">🔗</span> Odkazy a nástroje
+      <span class="nav-badge">34</span>
+    </a>
+    <a class="nav-item" data-section="vzdelavani" onclick="goTo('vzdelavani')">
+      <span class="nav-icon">🎓</span> Další vzdělávání
+    </a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+<div class="content">
+
+<!-- HERO -->
+<section class="hero fade-in" id="uvod">
+  <div class="hero-badge">⚡ AI Edu Stream — Webinář 24. 2. 2026</div>
+  <h1>Cursor od základů<br>120 minut, které změní způsob práce</h1>
+  <p>Kompletní interaktivní průvodce webinářem o Cursoru — AI editoru pro znalostní pracovníky. Od prvního nastavení po pokročilé agentské workflows.</p>
+  <div class="hero-meta">
+    <div class="hero-meta-item">👨‍🏫 <span>Martin Imrich, Tom Paulus</span></div>
+    <div class="hero-meta-item">🎙️ <span>Petra Květová Pšeničná</span></div>
+    <div class="hero-meta-item">🏢 <span>Aibility</span></div>
+    <div class="hero-meta-item">⏱️ <span>120 minut</span></div>
+  </div>
+</section>
+
+<!-- EXECUTIVE SUMMARY -->
+<section class="section fade-in" id="summary">
+  <div class="section-header">
+    <div class="section-icon" style="background:#ede9fe;color:var(--accent);">📋</div>
+    <h2>Executive Summary</h2>
+  </div>
+  <div class="info-block">
+    <p>Cursor je pokročilý textový editor s AI asistentem, který pracuje s lokálními soubory, píše skripty a má plný přístup ke složkové struktuře. Klíčová výhoda oproti ChatGPT/Claude: Cursor analyzuje soubory, napíše skript a provede úkol programově — matematicky správně, bez nutnosti umět programovat.</p>
+  </div>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-icon" style="background:#ede9fe;">🧠</div>
+      <h3>4 módy práce</h3>
+      <p>Agent, Plan, Debug, Ask — od přímého vykonání po bezpečný průzkum.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon" style="background:#ecfdf5;">🎯</div>
+      <h3>Kontext je klíč</h3>
+      <p>Přetahování složek/souborů do chatu, @ pro odkazy. Čím konkrétnější, tím lepší výsledky.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon" style="background:#fef2f2;">⚙️</div>
+      <h3>Personalizace</h3>
+      <p>Rules, Skills, Commands — přizpůsobte si chování agenta na míru.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon" style="background:#fefce8;">🔌</div>
+      <h3>MCP servery</h3>
+      <p>Slack, Figma, Make, Google Calendar — propojení s externími nástroji.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ROZHRANÍ -->
+<section class="section fade-in" id="rozhrani">
+  <div class="section-header">
+    <div class="section-icon" style="background:#eff6ff;color:var(--blue);">🖥️</div>
+    <h2>Rozhraní a nastavení</h2>
+  </div>
+  <div class="info-block">
+    <h3>🎨 Personalizace vzhledu</h3>
+    <ul>
+      <li><strong>Settings → Theme:</strong> světlé/tmavé téma, fonty — komunitní témata ke stažení</li>
+      <li><strong>View → Zoom:</strong> zvětšení rozhraní pro lepší čitelnost</li>
+      <li><strong>Přepínače vpravo nahoře:</strong> stromová struktura, agenti (chat), obsah souborů</li>
+      <li>Pozice panelů je individuální — strom vlevo nebo vpravo dle preference</li>
+    </ul>
+  </div>
+  <div class="callout tip">
+    <span class="callout-icon">💡</span>
+    <div>Při prvním otevření zvolte <strong>světlé téma</strong> — snižuje počáteční stres z nového prostředí. Zvětšete si Zoom pro příjemnější práci.</div>
+  </div>
+</section>
+
+<!-- WORKSPACE -->
+<section class="section fade-in" id="workspace">
+  <div class="section-header">
+    <div class="section-icon" style="background:#ecfdf5;color:var(--green);">📂</div>
+    <h2>Workspace — výběr složky</h2>
+  </div>
+  <div class="info-block">
+    <p>Cursor potřebuje vědět, <strong>s čím má pracovat</strong>. Při Open vybíráte složku — to je váš workspace.</p>
+  </div>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-icon" style="background:#eff6ff;">📁</div>
+      <h3>Přístup 1: Jedna složka</h3>
+      <p>Konkrétní složka jednoho projektu. Ideální pro zaměřenou práci na jednom úkolu.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon" style="background:#ecfdf5;">🌳</div>
+      <h3>Přístup 2: Celý strom</h3>
+      <p>Celá stromová struktura (např. pro Vibe Coding). Cursor vidí více projektů najednou.</p>
+    </div>
+  </div>
+  <div class="callout info">
+    <span class="callout-icon">ℹ️</span>
+    <div>Cursor nemá přístup mimo vybranou složku. Použijte <strong>New Window</strong> pro další projekt vedle, nebo <strong>Open</strong> pro změnu složky.</div>
+  </div>
+  <div class="info-block">
+    <h3>📎 Odkazování na soubory</h3>
+    <ul>
+      <li>Přetáhnutí složky/souboru přímo do chatu</li>
+      <li>Zavináč <code>@</code> + název souboru</li>
+      <li>Pravé tlačítko → <strong>Copy Path</strong> — vložení cesty do chatu</li>
+    </ul>
+  </div>
+</section>
+
+<!-- MÓDY A MODELY -->
+<section class="section fade-in" id="mody">
+  <div class="section-header">
+    <div class="section-icon" style="background:#fefce8;color:var(--yellow);">🎛️</div>
+    <h2>Módy a modely</h2>
+  </div>
+  <div class="tabs" id="modyTabs">
+    <button class="tab-btn active" onclick="switchTab('modyTabs','mody-modes')">4 Módy</button>
+    <button class="tab-btn" onclick="switchTab('modyTabs','mody-models')">Modely AI</button>
+  </div>
+  <div class="tab-panel active" id="mody-modes">
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-icon" style="background:#ecfdf5;">▶️</div>
+        <h3>Agent</h3>
+        <p>Automaticky vykoná, co řeknete. Přímá akce bez plánování.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background:#ede9fe;">📝</div>
+        <h3>Plan</h3>
+        <p>Analyzuje → vytvoří plán → pak provádí. Pro složité úkoly (80 % Tomovy práce).</p>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background:#fef2f2;">🐛</div>
+        <h3>Debug</h3>
+        <p>Hledání a oprava chyb v kódu. Specializovaný mód pro diagnostiku.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background:#eff6ff;">❓</div>
+        <h3>Ask</h3>
+        <p>Nic nemění, pouze odpovídá. Bezpečný pro průzkum a dotazy o souborech.</p>
+      </div>
+    </div>
+    <div class="callout tip">
+      <span class="callout-icon">💡</span>
+      <div>Začínejte s <strong>Ask</strong> pro průzkum (nic nepokazíte), <strong>Plan</strong> pro složité úkoly s mnoha kroky, <strong>Agent</strong> pro jednoduché přímé akce.</div>
+    </div>
+  </div>
+  <div class="tab-panel" id="mody-models">
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-icon" style="background:#ede9fe;">🏆</div>
+        <h3>Opus</h3>
+        <p>Pro složité úkoly a velké množství dat. Nejschopnější, ale dražší.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background:#ecfdf5;">⚡</div>
+        <h3>Sonnet</h3>
+        <p>Levnější, podobně inteligentní. Ideální pro běžné a jednodušší úkoly.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background:#fefce8;">🚀</div>
+        <h3>Composer</h3>
+        <p>Vlastní model Cursoru — extrémně rychlý, ale nedokonalý. Pro rychlou iteraci.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background:#fef2f2;">🔄</div>
+        <h3>Auto</h3>
+        <p>Cursor si vybere sám. Méně spolehlivé — <strong>nedoporučeno</strong> pro důležité úkoly.</p>
+      </div>
+    </div>
+    <div class="callout warning">
+      <span class="callout-icon">⚠️</span>
+      <div><strong>Doporučení:</strong> Anthropic modely (Opus, Sonnet) místo Auto. Vybírejte model explicitně dle složitosti úkolu.</div>
+    </div>
+    <div class="info-block">
+      <h3>💰 Náklady</h3>
+      <p>Předplatné ~200 USD ≈ 150 USD na tokeny; až 3000 USD při výběru dražších modelů. Šetřete: jednoduché úkoly v Auto, složité na Opus/Sonnet.</p>
+    </div>
+  </div>
+</section>
+
+<!-- KONTEXT -->
+<section class="section fade-in" id="kontext">
+  <div class="section-header">
+    <div class="section-icon" style="background:#fef2f2;color:var(--accent-3);">🎯</div>
+    <h2>Kontext — jak Cursor „vidí"</h2>
+  </div>
+  <div class="info-block">
+    <h3>🔑 Zlaté pravidlo</h3>
+    <p><strong>Čím konkrétnější kontext, tím lepší výsledek.</strong> Bez odkazu Agent prohledá celý workspace — u tisíců souborů pomalé a nepřesné.</p>
+  </div>
+  <div class="steps">
+    <div class="step"><div class="step-num"></div><div class="step-content"><h4>Přetáhněte složku do chatu</h4><p>Zužuje kontext — Cursor ví, kde hledat.</p></div></div>
+    <div class="step"><div class="step-num"></div><div class="step-content"><h4>Zavináč @ + soubor</h4><p>Odkaz na konkrétní soubor pro maximální přesnost.</p></div></div>
+    <div class="step"><div class="step-num"></div><div class="step-content"><h4>Copy Path</h4><p>Pravé tlačítko → Copy Path — vložení přesné cesty do chatu.</p></div></div>
+    <div class="step"><div class="step-num"></div><div class="step-content"><h4>Inbox složka</h4><p>Složka na „bordel" — Cursor si pamatuje kontext z předchozích dotazů.</p></div></div>
+  </div>
+  <div class="callout info">
+    <span class="callout-icon">💬</span>
+    <div>„Kontext je nová ropa" — bez něj nelze vytvořit praktický výstup. Vždy směrujte Cursor na konkrétní data.</div>
+  </div>
+</section>
+
+<!-- RULES, SKILLS, COMMANDS -->
+<section class="section fade-in" id="rules">
+  <div class="section-header">
+    <div class="section-icon" style="background:#ecfdf5;color:var(--accent-2);">📐</div>
+    <h2>Rules, Skills, Commands</h2>
+  </div>
+  <div class="tabs" id="rscTabs">
+    <button class="tab-btn active" onclick="switchTab('rscTabs','rsc-rules')">Rules</button>
+    <button class="tab-btn" onclick="switchTab('rscTabs','rsc-skills')">Skills</button>
+    <button class="tab-btn" onclick="switchTab('rscTabs','rsc-commands')">Commands</button>
+  </div>
+  <div class="tab-panel active" id="rsc-rules">
+    <div class="info-block">
+      <h3>📐 Rules — chování agenta</h3>
+      <p>Ovlivňují <strong>jak se agent chová</strong> — jako osobnostní nastavení (tón, pravidla, konvence).</p>
+      <ul>
+        <li><strong>Globální:</strong> <code>.cursor/commands</code> — dostupné vždy</li>
+        <li><strong>Lokální:</strong> jen v daném projektu</li>
+        <li><strong>Příklad:</strong> „Když řeknu Aibility jazyk, použij tento tón voice"</li>
+        <li><strong>Příklad:</strong> „Když říkám design systém, je to tento soubor"</li>
+        <li>Instalace z Kila (nákup Rules packů)</li>
+      </ul>
+    </div>
+  </div>
+  <div class="tab-panel" id="rsc-skills">
+    <div class="info-block">
+      <h3>🛠️ Skills — schopnosti agenta</h3>
+      <p>Rozšiřují <strong>co agent umí</strong> — jako naučit ho nový postup.</p>
+      <ul>
+        <li><strong>Příklad:</strong> Skill „Implement Design" — jak pracovat s Figmou</li>
+        <li>Cursor může vytvořit Skill z konverzace: „Vytvoř mi z toho Skill"</li>
+        <li>Opakující se úkoly → uložit jako Skill</li>
+      </ul>
+    </div>
+  </div>
+  <div class="tab-panel" id="rsc-commands">
+    <div class="info-block">
+      <h3>⌨️ Commands — uložené prompty</h3>
+      <p>Předpřipravené/uložené prompty na lomítko — rychlé spuštění opakovaných úkolů.</p>
+      <ul>
+        <li><code>/md</code> — zformátuje text do strukturovaného Markdownu</li>
+        <li><code>/share</code> — nahraje MD na Vercel, vrátí URL pro sdílení</li>
+        <li>Command může obsahovat i skript k zavolání</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- MCP -->
+<section class="section fade-in" id="mcp">
+  <div class="section-header">
+    <div class="section-icon" style="background:#fefce8;color:var(--yellow);">🔌</div>
+    <h2>MCP servery a externí nástroje</h2>
+  </div>
+  <div class="info-block">
+    <p><strong>MCP (Model Context Protocol)</strong> = konfigurace pro připojení k externím aplikacím.</p>
+    <ul>
+      <li><strong>Slack</strong> — připojení přes autorizaci; procházení kanálů, stahování scénářů</li>
+      <li><strong>Figma</strong> — designérský nástroj s integrací do vibe coding</li>
+      <li><strong>Make.com</strong> — vizuální tvorba workflow mezi aplikacemi</li>
+      <li><strong>Google Calendar</strong> — plánování přímo z Cursoru</li>
+    </ul>
+  </div>
+  <div class="callout warning">
+    <span class="callout-icon">⚠️</span>
+    <div><strong>API vs. MCP:</strong> API je často spolehlivější (např. Asana MCP padalo). Kontrolujte „MCP" v popisu pluginu na Marketplace.</div>
+  </div>
+</section>
+
+<!-- BEZPEČNOST -->
+<section class="section fade-in" id="bezpecnost">
+  <div class="section-header">
+    <div class="section-icon" style="background:#fef2f2;color:var(--red);">🛡️</div>
+    <h2>Oprávnění a sandbox</h2>
+  </div>
+  <div class="info-block">
+    <h3>Cursor Settings → Agents</h3>
+    <ul>
+      <li><strong>Ask me</strong> — agent se ptá na povolení před každou akcí</li>
+      <li><strong>Sandbox</strong> — omezené prostředí, bezpečnější</li>
+      <li><strong>All (Allow)</strong> — agent dělá vše včetně MCP; rychlejší, ale vyšší riziko</li>
+    </ul>
+  </div>
+  <div class="callout warning">
+    <span class="callout-icon">🔐</span>
+    <div>Pozor na citlivá data. Lze zakázat browser a MCP dle potřeby. Každou akci v chatu lze vrátit zpět (undo).</div>
+  </div>
+</section>
+
+<!-- SCÉNÁŘE -->
+<section class="section fade-in" id="scenare">
+  <div class="section-header">
+    <div class="section-icon" style="background:#ede9fe;color:var(--accent);">🚀</div>
+    <h2>Scénáře použití</h2>
+  </div>
+  <div class="tabs" id="scenTabs">
+    <button class="tab-btn active" onclick="switchTab('scenTabs','sc-data')">📊 Data</button>
+    <button class="tab-btn" onclick="switchTab('scenTabs','sc-obsah')">✍️ Obsah</button>
+    <button class="tab-btn" onclick="switchTab('scenTabs','sc-vibe')">💻 Vibe coding</button>
+    <button class="tab-btn" onclick="switchTab('scenTabs','sc-org')">📁 Organizace</button>
+  </div>
+  <div class="tab-panel active" id="sc-data">
+    <div class="info-block">
+      <h3>📊 Převod a transformace dat</h3>
+      <ul>
+        <li><strong>Spojení Excelů:</strong> „Mám 3 soubory, spoj je, přidej sloupec region, spočítej tržby" — Cursor napíše Python skript, nainstaluje pandas; výstup matematicky správný</li>
+        <li><strong>HTML → Markdown → PDF:</strong> jeden vstup → více výstupů; skripty pro batch (70+ reportů)</li>
+        <li><strong>Formátování:</strong> Command <code>/md</code> zformátuje nečitelný text</li>
+        <li><strong>Sdílení:</strong> Command <code>/share</code> nahraje na Vercel, vrátí URL</li>
+        <li><strong>Chybějící knihovny:</strong> nechte Cursor nainstalovat — neřešte ručně</li>
+      </ul>
+    </div>
+  </div>
+  <div class="tab-panel" id="sc-obsah">
+    <div class="info-block">
+      <h3>✍️ Analýza a tvorba obsahu</h3>
+      <ul>
+        <li><strong>Brief pro grafika:</strong> odkaz na metodiku, design systém, archetypy → brief za 2 minuty</li>
+        <li><strong>Ideace certifikátů:</strong> 15 variant v jednom souboru, různé layouty</li>
+        <li><strong>LinkedIn asistent:</strong> screenshoty postů → Rule pro váš voice → příspěvky</li>
+        <li><strong>Článek z výzkumu:</strong> výzkum + feedback + přepis → hotový článek</li>
+        <li><strong>Nabídka z kólu:</strong> přepis hovoru + popis služeb → nabídka za 5 minut (místo 4 hodin)</li>
+      </ul>
+    </div>
+  </div>
+  <div class="tab-panel" id="sc-vibe">
+    <div class="info-block">
+      <h3>💻 Vibe coding — mini-aplikace</h3>
+      <ul>
+        <li><strong>Landing Page Builder:</strong> design systém + <code>/site</code> → HTML stránka</li>
+        <li><strong>Prezentace:</strong> HTML místo PowerPointu; úpravy z připomínek zákazníka</li>
+        <li><strong>Abra reporting:</strong> API Abry → interní reporting na míru</li>
+        <li><strong>Inspirační grid:</strong> složka reklam → grid s náhledy, hosting na Railway</li>
+      </ul>
+    </div>
+  </div>
+  <div class="tab-panel" id="sc-org">
+    <div class="info-block">
+      <h3>📁 Organizace a automatizace</h3>
+      <ul>
+        <li><strong>Slack + Cursor:</strong> MCP → projít kanál, stáhnout a analyzovat scénáře</li>
+        <li><strong>GitHub:</strong> úložiště jako Google Drive, ale verzované</li>
+        <li><strong>Priority Manager:</strong> Skill pro priority → Focus bloky do Google Calendar</li>
+        <li><strong>Podcasty z reportů:</strong> report → skript dialogu → TTS → 70+ podcastů</li>
+        <li><strong>Audiopohádky:</strong> prompt → pohádka → validace → obrázek → audio → web</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- AKČNÍ KROKY -->
+<section class="section fade-in" id="kroky">
+  <div class="section-header">
+    <div class="section-icon" style="background:#ecfdf5;color:var(--green);">✅</div>
+    <h2>Akční kroky</h2>
+  </div>
+  <div class="tabs" id="krokyTabs">
+    <button class="tab-btn active" onclick="switchTab('krokyTabs','kr-pred')">🏁 Před prvním použitím</button>
+    <button class="tab-btn" onclick="switchTab('krokyTabs','kr-pri')">💼 Při práci</button>
+    <button class="tab-btn" onclick="switchTab('krokyTabs','kr-rozsir')">🚀 Pro rozšíření</button>
+  </div>
+  <div class="tab-panel active" id="kr-pred">
+    <div class="steps">
+      <div class="step"><div class="step-num"></div><div class="step-content"><h4>Stáhnout Cursor</h4><p>Po webináři pustit záznam pro doplnění.</p></div></div>
+      <div class="step"><div class="step-num"></div><div class="step-content"><h4>Open Project</h4><p>Vybrat složku — konkrétní projekt nebo celou strukturu.</p></div></div>
+      <div class="step"><div class="step-num"></div><div class="step-content"><h4>Settings → Theme</h4><p>Zvolit světlé téma pro příjemnější první dojem.</p></div></div>
+      <div class="step"><div class="step-num"></div><div class="step-content"><h4>View → Zoom</h4><p>Zvětšit rozhraní pro lepší čitelnost.</p></div></div>
+      <div class="step"><div class="step-num"></div><div class="step-content"><h4>Nainstalovat Spectory</h4><p>Ukládání historie chatů — zásadní pro analýzu práce.</p></div></div>
+    </div>
+  </div>
+  <div class="tab-panel" id="kr-pri">
+    <div class="steps">
+      <div class="step"><div class="step-num"></div><div class="step-content"><h4>Zužovat kontext</h4><p>Přetáhnout složku/soubor do chatu, použít @.</p></div></div>
+      <div class="step"><div class="step-num"></div><div class="step-content"><h4>Správný mód</h4><p>Plan pro složité, Agent pro jednoduché, Ask pro průzkum.</p></div></div>
+      <div class="step"><div class="step-num"></div><div class="step-content"><h4>Vybrat model explicitně</h4><p>Opus/Sonnet místo Auto pro důležité úkoly.</p></div></div>
+      <div class="step"><div class="step-num"></div><div class="step-content"><h4>Nový chat = nový úkol</h4><p>Nechci kontext předchozího úkolu — čistý start.</p></div></div>
+      <div class="step"><div class="step-num"></div><div class="step-content"><h4>Knihovny nechte na Cursoru</h4><p>Chybějící knihovny? „Nech to udělat Cursor."</p></div></div>
+    </div>
+  </div>
+  <div class="tab-panel" id="kr-rozsir">
+    <div class="steps">
+      <div class="step"><div class="step-num"></div><div class="step-content"><h4>Rules</h4><p>Opakující se instrukce — tón, design systém, cesty.</p></div></div>
+      <div class="step"><div class="step-num"></div><div class="step-content"><h4>Skills</h4><p>Rozšíření schopností pro specifické úkoly.</p></div></div>
+      <div class="step"><div class="step-num"></div><div class="step-content"><h4>Commands</h4><p>/md, /share — uložené prompty pro opakované úkoly.</p></div></div>
+      <div class="step"><div class="step-num"></div><div class="step-content"><h4>MCP integrace</h4><p>Slack, Figma, Google Calendar; API tam, kde MCP selhává.</p></div></div>
+      <div class="step"><div class="step-num"></div><div class="step-content"><h4>Workspace struktura</h4><p>Project Context Tools — individualizujte.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- SLOVNÍČEK -->
+<section class="section fade-in" id="slovnicek">
+  <div class="section-header">
+    <div class="section-icon" style="background:#eff6ff;color:var(--blue);">📖</div>
+    <h2>Slovníček pojmů</h2>
+  </div>
+  <dl>
+    <div class="glossary-item"><dt><code>Workspace</code></dt><dd>Složka nebo strom složek, se kterými Cursor pracuje; definuje kontext a přístup k souborům.</dd></div>
+    <div class="glossary-item"><dt><code>Agent</code></dt><dd>Mód Cursoru — přímé vykonání úkolu bez plánování.</dd></div>
+    <div class="glossary-item"><dt><code>Plan</code></dt><dd>Mód Cursoru — nejdřív analyzuje, vytvoří plán, pak provádí; pro složité úkoly.</dd></div>
+    <div class="glossary-item"><dt><code>Ask</code></dt><dd>Mód Cursoru — pouze odpovědi, žádné změny; bezpečný průzkum.</dd></div>
+    <div class="glossary-item"><dt><code>Rules</code></dt><dd>Pravidla ovlivňující chování agenta (tón, reference, konvence).</dd></div>
+    <div class="glossary-item"><dt><code>Skills</code></dt><dd>Rozšíření schopností agenta — konkrétní postupy pro daný typ úkolu.</dd></div>
+    <div class="glossary-item"><dt><code>Commands</code></dt><dd>Příkazy na lomítko (/md, /share) — předpřipravené prompty.</dd></div>
+    <div class="glossary-item"><dt><code>MCP</code></dt><dd>Model Context Protocol — připojení k externím aplikacím (Slack, Figma, Make).</dd></div>
+    <div class="glossary-item"><dt><code>Spectory</code></dt><dd>Rozšíření ukládající historii chatů do souborů; umožňuje analýzu práce.</dd></div>
+    <div class="glossary-item"><dt><code>Vibe coding</code></dt><dd>Tvorba aplikací pomocí AI bez nutnosti programovat.</dd></div>
+    <div class="glossary-item"><dt><code>Composer</code></dt><dd>Vlastní rychlý model Cursoru; nedokonalý, ale extrémně rychlý.</dd></div>
+  </dl>
+</section>
+
+<!-- ODKAZY -->
+<section class="section fade-in" id="odkazy">
+  <div class="section-header">
+    <div class="section-icon" style="background:#fefce8;color:var(--accent-4);">🔗</div>
+    <h2>Odkazy a nástroje</h2>
+  </div>
+  <div class="tabs" id="linkTabs">
+    <button class="tab-btn active" onclick="switchTab('linkTabs','lk-aibility')">Aibility</button>
+    <button class="tab-btn" onclick="switchTab('linkTabs','lk-cursor')">Cursor</button>
+    <button class="tab-btn" onclick="switchTab('linkTabs','lk-ai')">AI nástroje</button>
+    <button class="tab-btn" onclick="switchTab('linkTabs','lk-dev')">Dev & Hosting</button>
+  </div>
+  <div class="tab-panel active" id="lk-aibility">
+    <div class="links-grid">
+      <a class="link-row" href="https://aibility.cz/" target="_blank"><span class="link-name">Aibility</span><span class="link-desc">Hlavní web</span><span class="link-arrow">→</span></a>
+      <a class="link-row" href="https://aibility.cz/ai-edu-stream" target="_blank"><span class="link-name">AI Edu Stream</span><span class="link-desc">Vzdělávací platforma</span><span class="link-arrow">→</span></a>
+      <a class="link-row" href="https://aibility.cz/aidovednosti" target="_blank"><span class="link-name">Test AI dovedností</span><span class="link-desc">Zjistěte svou úroveň</span><span class="link-arrow">→</span></a>
+      <a class="link-row" href="https://aibility.cz/aimee" target="_blank"><span class="link-name">Aimee</span><span class="link-desc">AI koučka 24/7</span><span class="link-arrow">→</span></a>
+      <a class="link-row" href="https://aibility.cz/cursor" target="_blank"><span class="link-name">Cursor Masterclass</span><span class="link-desc">Jednodenní živý kurz</span><span class="link-arrow">→</span></a>
+      <a class="link-row" href="https://aibility.cz/webinare/nejblizsi-akce" target="_blank"><span class="link-name">Kalendář akcí</span><span class="link-desc">Nadcházející webináře</span><span class="link-arrow">→</span></a>
+      <a class="link-row" href="https://airtable.com/apprWm5AZiUAg1SGF/pagKo4kCojw2MqEPE/form" target="_blank"><span class="link-name">Zpětná vazba</span><span class="link-desc">Formulář na webinář</span><span class="link-arrow">→</span></a>
+      <a class="link-row" href="https://www.linkedin.com/in/petrakvetovapsenicna" target="_blank"><span class="link-name">LinkedIn — Petra</span><span class="link-desc">Moderátorka</span><span class="link-arrow">→</span></a>
+      <a class="link-row" href="https://www.linkedin.com/in/martin-imrich/" target="_blank"><span class="link-name">LinkedIn — Martin Imrich</span><span class="link-desc">Lektor</span><span class="link-arrow">→</span></a>
+      <a class="link-row" href="https://www.linkedin.com/in/tomaspaulus/" target="_blank"><span class="link-name">LinkedIn — Tomáš Paulus</span><span class="link-desc">Lektor</span><span class="link-arrow">→</span></a>
+    </div>
+  </div>
+  <div class="tab-panel" id="lk-cursor">
+    <div class="links-grid">
+      <a class="link-row" href="https://cursor.com/" target="_blank"><span class="link-name">Cursor</span><span class="link-desc">AI editor — hlavní stránka</span><span class="link-arrow">→</span></a>
+      <a class="link-row" href="https://cursor.com/pricing" target="_blank"><span class="link-name">Cursor Pricing</span><span class="link-desc">Ceník předplatného</span><span class="link-arrow">→</span></a>
+      <a class="link-row" href="https://cursor.com/dashboard" target="_blank"><span class="link-name">Cursor Dashboard</span><span class="link-desc">Nastavení předplatného</span><span class="link-arrow">→</span></a>
+      <a class="link-row" href="https://cursor.com/docs/settings/api-keys" target="_blank"><span class="link-name">Cursor API Keys</span><span class="link-desc">Nastavení API klíčů</span><span class="link-arrow">→</span></a>
+      <a class="link-row" href="https://cursor-aibility.lovable.app/" target="_blank"><span class="link-name">Průvodce pro knowledge workery</span><span class="link-desc">Kompletní průvodce od Aibility</span><span class="link-arrow">→</span></a>
+    </div>
+  </div>
+  <div class="tab-panel" id="lk-ai">
+    <div class="links-grid">
+      <a class="link-row" href="https://chatgpt.com/" target="_blank"><span class="link-name">ChatGPT</span><span class="link-cat">AI asistent</span><span class="link-desc">Univerzální AI model</span><span class="link-arrow">→</span></a>
+      <a class="link-row" href="https://claude.ai" target="_blank"><span class="link-name">Claude</span><span class="link-cat">AI asistent</span><span class="link-desc">Kvalita textů a artefakty</span><span class="link-arrow">→</span></a>
+      <a class="link-row" href="https://claude.ai/code" target="_blank"><span class="link-name">Claude Code</span><span class="link-cat">Kódování</span><span class="link-desc">Prostředí od Anthropic</span><span class="link-arrow">→</span></a>
+      <a class="link-row" href="https://gemini.google.com/" target="_blank"><span class="link-name">Gemini</span><span class="link-cat">AI asistent</span><span class="link-desc">AI od Googlu</span><span class="link-arrow">→</span></a>
+      <a class="link-row" href="https://elevenlabs.io/" target="_blank"><span class="link-name">ElevenLabs</span><span class="link-cat">Hlas</span><span class="link-desc">Syntéza řeči, klonování hlasu</span><span class="link-arrow">→</span></a>
+      <a class="link-row" href="https://openai.com/research/whisper" target="_blank"><span class="link-name">Whisper</span><span class="link-cat">Přepis</span><span class="link-desc">Převod řeči na text</span><span class="link-arrow">→</span></a>
+      <a class="link-row" href="https://gamma.app/cs" target="_blank"><span class="link-name">Gamma.app</span><span class="link-cat">Prezentace</span><span class="link-desc">Rychlá tvorba prezentací</span><span class="link-arrow">→</span></a>
+      <a class="link-row" href="https://obsidian.md/" target="_blank"><span class="link-name">Obsidian</span><span class="link-cat">Znalostní báze</span><span class="link-desc">Markdown osobní wiki</span><span class="link-arrow">→</span></a>
+    </div>
+  </div>
+  <div class="tab-panel" id="lk-dev">
+    <div class="links-grid">
+      <a class="link-row" href="https://github.com/" target="_blank"><span class="link-name">GitHub</span><span class="link-desc">Správa verzí a spolupráce</span><span class="link-arrow">→</span></a>
+      <a class="link-row" href="https://cli.github.com" target="_blank"><span class="link-name">GitHub CLI</span><span class="link-desc">Propojení Cursoru s GitHubem</span><span class="link-arrow">→</span></a>
+      <a class="link-row" href="https://vercel.com" target="_blank"><span class="link-name">Vercel</span><span class="link-desc">Hosting webových projektů</span><span class="link-arrow">→</span></a>
+      <a class="link-row" href="https://railway.app" target="_blank"><span class="link-name">Railway</span><span class="link-desc">Hosting — levnější varianta</span><span class="link-arrow">→</span></a>
+      <a class="link-row" href="https://lovable.dev/" target="_blank"><span class="link-name">Lovable</span><span class="link-desc">Rychlá tvorba prototypů</span><span class="link-arrow">→</span></a>
+      <a class="link-row" href="https://figma.com/" target="_blank"><span class="link-name">Figma</span><span class="link-desc">Designérský nástroj</span><span class="link-arrow">→</span></a>
+      <a class="link-row" href="https://www.framer.com/" target="_blank"><span class="link-name">Framer</span><span class="link-desc">Design-a-build platforma</span><span class="link-arrow">→</span></a>
+      <a class="link-row" href="https://www.make.com/" target="_blank"><span class="link-name">Make.com</span><span class="link-desc">Vizuální workflow</span><span class="link-arrow">→</span></a>
+      <a class="link-row" href="https://n8n.io/" target="_blank"><span class="link-name">n8n</span><span class="link-desc">Open-source automatizace</span><span class="link-arrow">→</span></a>
+      <a class="link-row" href="https://slack.com/" target="_blank"><span class="link-name">Slack</span><span class="link-desc">Komunikační nástroj</span><span class="link-arrow">→</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- VZDĚLÁVÁNÍ -->
+<section class="section fade-in" id="vzdelavani">
+  <div class="section-header">
+    <div class="section-icon" style="background:#fef2f2;color:var(--accent-3);">🎓</div>
+    <h2>Další vzdělávání</h2>
+  </div>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-icon" style="background:#ede9fe;">🎯</div>
+      <h3>Cursor Masterclass</h3>
+      <p>Jednodenní, živě. Hloubkový kurz pro pokročilé.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon" style="background:#ecfdf5;">💻</div>
+      <h3>Vibe coding v praxi</h3>
+      <p>Od prototypu k živé appce. Vercel, GitHub.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon" style="background:#fefce8;">🤖</div>
+      <h3>Cursor a AI v praxi</h3>
+      <p>Praktické použití pro každodenní práci.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon" style="background:#fef2f2;">✨</div>
+      <h3>Aimee — nové schopnosti</h3>
+      <p>AI koučka s novými super schopnostmi pro Cursor.</p>
+    </div>
+  </div>
+</section>
+
+</div>
+</main>
+
+<button class="back-top" id="backTop" onclick="window.scrollTo({top:0})">↑</button>
+
+<script>
+function goTo(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth' });
+  closeSidebar();
+}
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); }
+
+function switchTab(groupId, panelId) {
+  const group = document.getElementById(groupId);
+  group.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  let sibling = group.nextElementSibling;
+  while (sibling && sibling.classList.contains('tab-panel')) {
+    sibling.classList.remove('active');
+    sibling = sibling.nextElementSibling;
+  }
+  document.getElementById(panelId).classList.add('active');
+}
+
+window.addEventListener('scroll', () => {
+  const scrolled = window.scrollY;
+  const total = document.documentElement.scrollHeight - window.innerHeight;
+  document.getElementById('progressBar').style.width = Math.min((scrolled / total) * 100, 100) + '%';
+  document.getElementById('backTop').classList.toggle('visible', scrolled > 400);
+  const sections = document.querySelectorAll('.section, .hero');
+  let current = '';
+  sections.forEach(s => { if (s.getBoundingClientRect().top < 150) current = s.id; });
+  document.querySelectorAll('.nav-item').forEach(n => {
+    n.classList.toggle('active', n.dataset.section === current);
+  });
+});
+
+const searchData = [];
+function buildSearchIndex() {
+  document.querySelectorAll('.section, .hero').forEach(section => {
+    const id = section.id;
+    const heading = section.querySelector('h2, h1');
+    const title = heading ? heading.textContent : id;
+    section.querySelectorAll('p, li, dd, h3, h4').forEach(el => {
+      const text = el.textContent.trim();
+      if (text.length > 10) searchData.push({ id, title, text, el });
+    });
+  });
+}
+
+const searchInput = document.getElementById('searchInput');
+const searchResults = document.getElementById('searchResults');
+const searchOverlay = document.getElementById('searchOverlay');
+
+searchInput.addEventListener('input', (e) => {
+  const q = e.target.value.toLowerCase().trim();
+  if (q.length < 2) { closeSearch(); return; }
+  const matches = searchData.filter(d => d.text.toLowerCase().includes(q)).slice(0, 12);
+  if (!matches.length) {
+    searchResults.innerHTML = '<div class="search-empty">Žádné výsledky pro „' + e.target.value + '"</div>';
+  } else {
+    searchResults.innerHTML = matches.map(m => {
+      const idx = m.text.toLowerCase().indexOf(q);
+      const start = Math.max(0, idx - 40), end = Math.min(m.text.length, idx + q.length + 40);
+      let snippet = (start > 0 ? '…' : '') + m.text.slice(start, end) + (end < m.text.length ? '…' : '');
+      snippet = snippet.replace(new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi'), '<mark>$1</mark>');
+      return `<div class="search-result-item" onclick="goToSearch('${m.id}')"><div class="sr-title">${m.title}</div><div class="sr-match">${snippet}</div></div>`;
+    }).join('');
+  }
+  searchResults.style.display = 'block';
+  searchOverlay.style.display = 'block';
+});
+
+searchInput.addEventListener('focus', () => { if (searchInput.value.length >= 2) searchInput.dispatchEvent(new Event('input')); });
+
+function goToSearch(id) { closeSearch(); searchInput.value = ''; goTo(id); }
+function closeSearch() { searchResults.style.display = 'none'; searchOverlay.style.display = 'none'; }
+
+document.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); searchInput.focus(); }
+  if (e.key === 'Escape') { closeSearch(); searchInput.blur(); }
+});
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+function printPage() { window.print(); }
+document.addEventListener('DOMContentLoaded', buildSearchIndex);
+</script>
+</body>
+</html>
