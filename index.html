@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Interaktivní průvodce Cursorem pro znalostní práci. Aktualizováno pro Cursor 2.6.x (VS Code 1.105, Electron 39). Agent, Plan, Debug, Ask, MCP, Rules a Skills.">
 <title>Cursor od základů — Interaktivní průvodce</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap');
@@ -570,6 +571,9 @@ code {
     <a class="nav-item" data-section="summary" onclick="goTo('summary')">
       <span class="nav-icon">📋</span> Executive Summary
     </a>
+    <a class="nav-item" data-section="verze" onclick="goTo('verze')">
+      <span class="nav-icon">🆕</span> Verze a novinky
+    </a>
   </div>
   <div class="sidebar-section">
     <div class="sidebar-label">Začínáme</div>
@@ -616,7 +620,7 @@ code {
     </a>
     <a class="nav-item" data-section="odkazy" onclick="goTo('odkazy')">
       <span class="nav-icon">🔗</span> Odkazy a nástroje
-      <span class="nav-badge">34</span>
+      <span class="nav-badge">35</span>
     </a>
     <a class="nav-item" data-section="vzdelavani" onclick="goTo('vzdelavani')">
       <span class="nav-icon">🎓</span> Další vzdělávání
@@ -632,7 +636,7 @@ code {
 <section class="hero fade-in" id="uvod">
   <div class="hero-badge">⚡ AI Edu Stream — Webinář 24. 2. 2026</div>
   <h1>Cursor od základů<br>120 minut, které změní způsob práce</h1>
-  <p>Kompletní interaktivní průvodce webinářem o Cursoru — AI editoru pro znalostní pracovníky. Od prvního nastavení po pokročilé agentské workflows.</p>
+  <p>Kompletní interaktivní průvodce webinářem o Cursoru — AI editoru postaveném na aktuálním jádru VS Code, s agenty, plánováním a MCP. Od prvního nastavení po pokročilé agentské workflows. Text odpovídá <strong>stable</strong> větvi 2.6.x (březen 2026).</p>
   <div class="hero-meta">
     <div class="hero-meta-item">👨‍🏫 <span>Martin Imrich, Tom Paulus</span></div>
     <div class="hero-meta-item">🎙️ <span>Petra Květová Pšeničná</span></div>
@@ -648,7 +652,7 @@ code {
     <h2>Executive Summary</h2>
   </div>
   <div class="info-block">
-    <p>Cursor je pokročilý textový editor s AI asistentem, který pracuje s lokálními soubory, píše skripty a má plný přístup ke složkové struktuře. Klíčová výhoda oproti ChatGPT/Claude: Cursor analyzuje soubory, napíše skript a provede úkol programově — matematicky správně, bez nutnosti umět programovat.</p>
+    <p>Cursor je pokročilý editor kódu (fork Visual Studio Code) s integrovanými AI agenty, který pracuje s lokálními soubory, píše skripty a má plný přístup ke složkové struktuře. Klíčová výhoda oproti čistému chatu v prohlížeči: Cursor analyzuje soubory v projektu, napíše skript a úkol provede programově — matematicky správně, bez nutnosti umět programovat. V aktuálních stable buildech (např. 2.6.x) přibývá mimo jiné lepší podpora <strong>MCP</strong> včetně interaktivních výstupů a správy pluginů pro týmy.</p>
   </div>
   <div class="card-grid">
     <div class="card">
@@ -669,8 +673,41 @@ code {
     <div class="card">
       <div class="card-icon" style="background:#fefce8;">🔌</div>
       <h3>MCP servery</h3>
-      <p>Slack, Figma, Make, Google Calendar — propojení s externími nástroji.</p>
+      <p>Slack, Figma, Make, Google Calendar — propojení s externími nástroji; v 2.6 i MCP Apps (grafy, diagramy přímo v chatu).</p>
     </div>
+  </div>
+</section>
+
+<!-- VERZE A NOVINKY -->
+<section class="section fade-in" id="verze">
+  <div class="section-header">
+    <div class="section-icon" style="background:#ede9fe;color:var(--accent);">🆕</div>
+    <h2>Verze a novinky (Cursor 2.6)</h2>
+  </div>
+  <div class="info-block">
+    <h3>📌 Referenční build (kontrola v Help → About)</h3>
+    <p>Průvodce je srovnán s aktuálním <strong>stable</strong> instalátorem na Windows. Typické hodnoty:</p>
+    <ul>
+      <li><strong>Cursor:</strong> 2.6.20 (system setup)</li>
+      <li><strong>Základ VS Code:</strong> 1.105.1</li>
+      <li><strong>Release track:</strong> Default · <strong>Build:</strong> Stable</li>
+      <li><strong>Electron:</strong> 39.8.1 · <strong>Chromium:</strong> 142.x · <strong>Node.js:</strong> 22.22.x</li>
+      <li><strong>OS:</strong> Windows 10/11 x64 (hodnota <code>win32</code> v About)</li>
+    </ul>
+    <p>Přesné číslo sestavení a commit ID vždy ověřte v editoru — menší patchové verze (2.6.20, 2.6.21, …) se v průběhu týdnů mění.</p>
+  </div>
+  <div class="info-block">
+    <h3>✨ Novinky v řadě 2.6 (březen 2026)</h3>
+    <p>Podle <a href="https://cursor.com/changelog/2-6" target="_blank" rel="noopener">oficiálního changelogu 2.6</a> (3. 3. 2026):</p>
+    <ul>
+      <li><strong>MCP Apps</strong> — interaktivní rozhraní přímo v agentím chatu: např. grafy (Amplitude), diagramy (Figma), tabule (tldraw). Dokumentace: <a href="https://cursor.com/docs/context/mcp#mcp-apps" target="_blank" rel="noopener">MCP Apps</a>.</li>
+      <li><strong>Team marketplaces pro pluginy</strong> — u plánů Teams a Enterprise mohou administrátoři sdílet interní pluginy s řízením přístupu (<a href="https://cursor.com/docs/plugins#team-marketplaces" target="_blank" rel="noopener">team marketplaces</a>).</li>
+      <li><strong>Vylepšení jádra</strong> — řada desktopových úprav a oprav; posílení mimo jiné <strong>Debug</strong> módu.</li>
+    </ul>
+   </div>
+  <div class="callout info">
+    <span class="callout-icon">🔗</span>
+    <div>Kompletní přehled vydání: <a href="https://cursor.com/changelog" target="_blank" rel="noopener">cursor.com/changelog</a>. U modelů sledujte také oznámení k <strong>Composer</strong> / Composer 2 v changelogu — výběr modelu je vždy v rozhraní chatu.</div>
   </div>
 </section>
 
@@ -755,7 +792,7 @@ code {
       <div class="card">
         <div class="card-icon" style="background:#fef2f2;">🐛</div>
         <h3>Debug</h3>
-        <p>Hledání a oprava chyb v kódu. Specializovaný mód pro diagnostiku.</p>
+        <p>Hledání a oprava chyb v kódu. Specializovaný mód pro diagnostiku; v řadě 2.6 proběhla řada vylepšení jádra tohoto módu.</p>
       </div>
       <div class="card">
         <div class="card-icon" style="background:#eff6ff;">❓</div>
@@ -783,7 +820,7 @@ code {
       <div class="card">
         <div class="card-icon" style="background:#fefce8;">🚀</div>
         <h3>Composer</h3>
-        <p>Vlastní model Cursoru — extrémně rychlý, ale nedokonalý. Pro rychlou iteraci.</p>
+        <p>Vlastní model Cursoru — extrémně rychlý, vhodný na iteraci; v roce 2026 changelog zmiňuje i Composer 2 — dostupnost a přesný název vždy v rozhraní výběru modelu.</p>
       </div>
       <div class="card">
         <div class="card-icon" style="background:#fef2f2;">🔄</div>
@@ -840,8 +877,9 @@ code {
       <h3>📐 Rules — chování agenta</h3>
       <p>Ovlivňují <strong>jak se agent chová</strong> — jako osobnostní nastavení (tón, pravidla, konvence).</p>
       <ul>
-        <li><strong>Globální:</strong> <code>.cursor/commands</code> — dostupné vždy</li>
-        <li><strong>Lokální:</strong> jen v daném projektu</li>
+        <li><strong>Globální:</strong> <strong>Cursor Settings → Rules</strong> (uživatelská pravidla pro všechny projekty)</li>
+        <li><strong>Projektová:</strong> složka <code>.cursor/rules</code> v workspace (nebo pravidla v nastavení projektu dle dokumentace)</li>
+        <li><strong>Custom příkazy (Commands):</strong> můžete mít v <code>.cursor/commands</code> — to jsou uložené prompty, ne totéž co Rules</li>
         <li><strong>Příklad:</strong> „Když řeknu Aibility jazyk, použij tento tón voice"</li>
         <li><strong>Příklad:</strong> „Když říkám design systém, je to tento soubor"</li>
         <li>Instalace z Kila (nákup Rules packů)</li>
@@ -879,10 +917,10 @@ code {
     <h2>MCP servery a externí nástroje</h2>
   </div>
   <div class="info-block">
-    <p><strong>MCP (Model Context Protocol)</strong> = konfigurace pro připojení k externím aplikacím.</p>
+    <p><strong>MCP (Model Context Protocol)</strong> = konfigurace pro připojení k externím aplikacím. Od verze <strong>2.6</strong> navíc <strong>MCP Apps</strong> — servery mohou do chatu vykreslovat interaktivní UI (grafy, diagramy, tabule), ne jen posílat text.</p>
     <ul>
       <li><strong>Slack</strong> — připojení přes autorizaci; procházení kanálů, stahování scénářů</li>
-      <li><strong>Figma</strong> — designérský nástroj s integrací do vibe coding</li>
+      <li><strong>Figma</strong> — designérský nástroj s integrací do vibe coding; v 2.6 i MCP App pro diagramy v chatu</li>
       <li><strong>Make.com</strong> — vizuální tvorba workflow mezi aplikacemi</li>
       <li><strong>Google Calendar</strong> — plánování přímo z Cursoru</li>
     </ul>
@@ -1029,9 +1067,10 @@ code {
     <div class="glossary-item"><dt><code>Skills</code></dt><dd>Rozšíření schopností agenta — konkrétní postupy pro daný typ úkolu.</dd></div>
     <div class="glossary-item"><dt><code>Commands</code></dt><dd>Příkazy na lomítko (/md, /share) — předpřipravené prompty.</dd></div>
     <div class="glossary-item"><dt><code>MCP</code></dt><dd>Model Context Protocol — připojení k externím aplikacím (Slack, Figma, Make).</dd></div>
+    <div class="glossary-item"><dt><code>MCP Apps</code></dt><dd>Od Cursor 2.6: MCP servery mohou v chatu zobrazovat interaktivní rozhraní (grafy, diagramy), ne jen text.</dd></div>
     <div class="glossary-item"><dt><code>Spectory</code></dt><dd>Rozšíření ukládající historii chatů do souborů; umožňuje analýzu práce.</dd></div>
     <div class="glossary-item"><dt><code>Vibe coding</code></dt><dd>Tvorba aplikací pomocí AI bez nutnosti programovat.</dd></div>
-    <div class="glossary-item"><dt><code>Composer</code></dt><dd>Vlastní rychlý model Cursoru; nedokonalý, ale extrémně rychlý.</dd></div>
+    <div class="glossary-item"><dt><code>Composer</code></dt><dd>Vlastní rychlý model Cursoru pro rychlou iteraci; v roce 2026 i Composer 2 dle changelogu — ověřte vybraný model v UI.</dd></div>
   </dl>
 </section>
 
@@ -1064,6 +1103,7 @@ code {
   <div class="tab-panel" id="lk-cursor">
     <div class="links-grid">
       <a class="link-row" href="https://cursor.com/" target="_blank"><span class="link-name">Cursor</span><span class="link-desc">AI editor — hlavní stránka</span><span class="link-arrow">→</span></a>
+      <a class="link-row" href="https://cursor.com/changelog" target="_blank"><span class="link-name">Changelog</span><span class="link-desc">Novinky ve verzích (2.6, …)</span><span class="link-arrow">→</span></a>
       <a class="link-row" href="https://cursor.com/pricing" target="_blank"><span class="link-name">Cursor Pricing</span><span class="link-desc">Ceník předplatného</span><span class="link-arrow">→</span></a>
       <a class="link-row" href="https://cursor.com/dashboard" target="_blank"><span class="link-name">Cursor Dashboard</span><span class="link-desc">Nastavení předplatného</span><span class="link-arrow">→</span></a>
       <a class="link-row" href="https://cursor.com/docs/settings/api-keys" target="_blank"><span class="link-name">Cursor API Keys</span><span class="link-desc">Nastavení API klíčů</span><span class="link-arrow">→</span></a>
